@@ -1,0 +1,149 @@
+<!--Sanduni Chamika-->
+<!--2017541-->
+<!--w1673755-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Graph Network</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.19.1/vis.min.css"/>
+    <script type="text/javascript" src="vis.min.js"></script>
+    <script type="text/javascript" src="mygraph.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style type="text/css">
+        .network, .matrix {
+            display:block;
+            background-color:white;
+        }
+
+        .network {
+            width:500px;
+            height:500px;
+            border:2px solid #283e6a;
+        }
+
+        .matrix {
+            width:400px;
+            height:400px;
+        }
+
+        .display {
+            font-size: 16px;
+            color: #283e6a;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+<div class="row">
+    <div class="col-lg-6" align="center">
+        <h1 style="color:#283e6a" class="display-4">GRAPH</h1>
+        <div class="network"></div>
+        <div class="display">
+            <p id="displayMaxFlow"></p>
+            <p id="displayExecTime"></p>
+        </div>
+    </div>
+    <div class="col-lg-6" align="center" style="margin-top: 35px">
+        <div>
+            <button id="btn" class="btn btn-info" onclick="generateGraph()">Generate MaxFlow</button>
+            <button id="btn1" class="btn btn-warning" onclick="showGraph()">show graph</button>
+            <button id="btn2" class="btn btn-success" onclick="refresh()">Refresh</button>
+        </div>
+
+        <div class="matrix" id="matrix" style="margin-top: 20px"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    const VALUE = generateRandomNumber(4, 10);
+
+    var edges = new vis.DataSet([]);
+
+    // create an array with nodes
+    var nodes = new vis.DataSet([]);
+    var contents = new vis.DataSet([]);
+
+    for (let n=1; n<=VALUE; n++) {
+        nodes.add({id: n, label: ' ' + n + ' ' , color:{ background:"cornflowerblue", border:"#283e6a" },});
+    }
+
+    function generateGraph() {
+        let start = performance.now();
+        let html = "<table class='table table-dark' style='text-align: center'>"; // Entering the matrix values to a table to display
+        var matrix1 = []; //Initializing the matrix
+
+        for (let i = 0; i < VALUE; i++) {
+            let matrix2 = [];
+            for (let j = 0; j < VALUE; j++) {
+                matrix2.push(0);
+            }
+            matrix1.push(matrix2);
+            // Entering table headings
+            if (i!=0) {
+                html+="<th>"+(i)+"</th>";
+            } else {
+                html+="<th>"+ " "+"</th>";
+            }
+        }
+        html+="<th>"+(matrix1.length)+"</th>";
+
+        for (let i = 0; i < VALUE; i++ ) {
+            html+="<tr>";
+            html+="<td style='font-weight: bold'>"+(i+1)+"</td>";
+            for (let j = 0; j < VALUE; j++) {
+
+                if (i===j) {
+                    matrix1[i][j] = 0; // Setting the diagonal of the matrix to 0
+                } else {
+                    if(matrix1[j][i]===0) {
+                        matrix1[i][j] = generateRandomNumber(5, 10); // Setting generated values to matrix
+                    }
+                }
+
+                if(matrix1[i][j]!==0) {
+                    edges.add({from:i+1, to:j+1, label: " "+matrix1[i][j]+" ", arrows: "to" });
+                }
+                html+="<td>"+matrix1[i][j]+"</td>";
+            }
+            html+="</tr>";
+        }
+        html+="</table>";
+        let end = performance.now();
+        document.getElementById("matrix").innerHTML = html;
+        document.getElementById("displayMaxFlow").innerHTML = "MAXFLOW of the graph is "+fordFulkerson(matrix1, 0, VALUE-1);
+        document.getElementById("displayExecTime").innerHTML = " Execute time : "+(end-start)+" ms";
+
+    }
+
+    //Generating a random number within the given range
+    function generateRandomNumber(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    //Display the Graph using Vis.js
+    function showGraph(){
+        var options = {};
+
+        var container = document.querySelector('.network');
+
+        // provide the data in the vis format
+        var data = {
+            nodes: nodes,
+            edges: edges,
+            content: contents
+        };
+
+        network = new vis.Network(container, data, options);
+    }
+    
+    // Refresh the Page
+    function refresh() {
+        document.location.reload();
+    }
+</script>
+</body>
+</html>
